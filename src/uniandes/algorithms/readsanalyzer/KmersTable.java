@@ -45,7 +45,7 @@ public class KmersTable implements RawReadProcessor {
 					}
 				}
 				//Add new kMer to dictionary
-				this.kMerSizes.put(sub1, count);
+				this.kMerSizes.put(sub1, count); 
 			}
 		}
 		
