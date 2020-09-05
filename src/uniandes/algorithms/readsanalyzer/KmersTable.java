@@ -80,8 +80,27 @@ public class KmersTable implements RawReadProcessor {
 	 * @return int [] array where the indexes are abundances and the values are the number of k-mers
 	 * observed as many times as the corresponding array index. Position zero should be equal to zero
 	 */
-	public HashMap calculateAbundancesDistribution() {
+	public int [] calculateAbundancesDistribution() {
 		// TODO Implementar metodo
+		//Find the maximun abundance value 
+		int max = 0;
+		for(int x: kMerSizes.values()) {
+			max = (x > max)?x:max;
+		}
+		
+		int[] a_distribution = new int[max];
+		a_distribution[0] = 0;
+		int cont = 1;
+		for(int i= 0; i < max; i++) {
+			a_distribution[i] = 0;
+		}
+		
+		for(int x: kMerSizes.values()) {
+			a_distribution[x] = a_distribution[x] + 1;
+		}
+		
+		return a_distribution;
+		/*
 		HashMap<String, Integer> kMerSizesCopy = kMerSizes;
 		
 		for(String x: kMerSizes.keySet()) {
@@ -104,7 +123,7 @@ public class KmersTable implements RawReadProcessor {
 				//Add new kMer to dictionary
 				this.distribution.put(abundance, count); 
 			}
-		}
-		return distribution;
+		}*/
+		
 	}
 }
