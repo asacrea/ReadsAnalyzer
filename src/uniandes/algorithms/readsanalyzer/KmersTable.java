@@ -1,10 +1,10 @@
 package uniandes.algorithms.readsanalyzer;
 
 import java.util.HashMap;
+
 import java.util.Set;
 
 import ngsep.sequences.RawRead;
-import uniandes.algobc.structures.Gene;
 /**
  * Stores abundances information on a list of subsequences of a fixed length k (k-mers)
  * @author Jorge Duitama
@@ -13,7 +13,6 @@ public class KmersTable implements RawReadProcessor {
 
 	private int kmerSize;
 	private HashMap<String,Integer> kMerSizes = new HashMap<>();
-	private HashMap<Integer,Integer> distribution = new HashMap<>();
 	/**
 	 * Creates a new table with the given k-mer size
 	 * @param kmerSize length of k-mers stored in this table
@@ -34,6 +33,16 @@ public class KmersTable implements RawReadProcessor {
 		//Search all posible kMers
 		for(int x=0; x < sequence.length()-this.kmerSize; x++) {
 			String sub1 = sequence.substring(x, x+this.kmerSize);
+			if(!this.kMerSizes.containsKey(sub1)) {
+				this.kMerSizes.put(sub1, 1);
+			}else {
+				this.kMerSizes.replace(sub1, this.kMerSizes.get(sub1)+1);
+			}
+		}
+		
+		/*
+		for(int x=0; x < sequence.length()-this.kmerSize; x++) {
+			String sub1 = sequence.substring(x, x+this.kmerSize);
 			if(this.kMerSizes.containsKey(sub1)) {
 				continue;
 			}else {
@@ -41,7 +50,9 @@ public class KmersTable implements RawReadProcessor {
 				//Search how many fixed kMer sequence have
 				for(int y = x+1; y < sequence.length()-this.kmerSize; y++) {
 					String sub2 = sequence.substring(y, y+this.kmerSize);
-					if( sub1 == sub2) {
+					//System.out.println("Palabra 1: " + sub1 + " | " + "Palabra 2: " + sub2);
+					//System.out.println(sub1 == sub2);
+					if( sub1.equals(sub2)) {
 						count++;
 					}
 				}
@@ -49,7 +60,7 @@ public class KmersTable implements RawReadProcessor {
 				this.kMerSizes.put(sub1, count); 
 			}
 		}
-		
+		*/
 	}
 	
 	/**
@@ -70,7 +81,6 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public int getAbundance(String kmer) {
 		// TODO Implementar metodo
-		int a = 1;
 		return kMerSizes.get(kmer);
 	}
 	
@@ -85,20 +95,21 @@ public class KmersTable implements RawReadProcessor {
 		//Find the maximun abundance value 
 		int max = 0;
 		for(int x: kMerSizes.values()) {
+			//System.out.println("La abundancia es: " + x);
 			max = (x > max)?x:max;
 		}
 		
-		int[] a_distribution = new int[max];
+		System.out.println("El valor de Max es: " + max);
+		
+		int[] a_distribution = new int[max+1];
 		a_distribution[0] = 0;
-		int cont = 1;
 		for(int i= 0; i < max; i++) {
 			a_distribution[i] = 0;
 		}
-		
 		for(int x: kMerSizes.values()) {
 			a_distribution[x] = a_distribution[x] + 1;
 		}
-		
+		System.out.println("El tamño de las distribucines es: " + a_distribution.length);
 		return a_distribution;
 		/*
 		HashMap<String, Integer> kMerSizesCopy = kMerSizes;

@@ -34,7 +34,7 @@ public class ReadsAnalyzerExample {
 		if(COMMAND_OVERLAP.equals(command)&& args.length>2) {
 			minOverlap = Integer.parseInt(args[2]);
 		} else if(COMMAND_KMERS.equals(command) && args.length>2) {
-			kmerSize = Integer.parseInt(args[2]);
+			kmerSize	 = Integer.parseInt(args[2]);
 		}
 		
 		if(COMMAND_OVERLAP.equals(command)) {
