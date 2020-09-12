@@ -18,6 +18,7 @@ import ngsep.sequences.RawRead;
 public class OverlapGraph implements RawReadProcessor {
 
 	private int minOverlap;
+	
 	private Map<String,Integer> readCounts = new HashMap<>();
 	private Map<String,ArrayList<ReadOverlap>> overlaps = new HashMap<>();
 	
@@ -25,7 +26,8 @@ public class OverlapGraph implements RawReadProcessor {
 	 * Creates a new overlap graph with the given minimum overlap
 	 * @param minOverlap Minimum overlap
 	 */
-	public OverlapGraph(int minOverlap) {
+	public OverlapGraph(int minOverlap) 
+	{
 		this.minOverlap = minOverlap;
 	}
 
@@ -33,10 +35,30 @@ public class OverlapGraph implements RawReadProcessor {
 	 * Adds a new read to the overlap graph
 	 * @param read object with the new read
 	 */
-	public void processRead(RawRead read) {
+	public void processRead(RawRead read) 
+	{
 		String sequence = read.getSequenceString();
 		//TODO: Paso 1. Agregar la secuencia al mapa de conteos si no existe.
 		//Si ya existe, solo se le suma 1 a su conteo correspondiente y no se deben ejecutar los pasos 2 y 3 
+		int contador=0;
+		int vueltas= readCounts.size();
+		boolean encontrado= false; 
+		while (encontrado==false && contador<vueltas)
+		{
+		
+			if (readCounts.containsKey(sequence))
+			{
+				encontrado=true;
+				this.readCounts
+			}
+			else 
+			{
+				
+			}
+			contador ++;
+		}
+		
+		
 		
 		//TODO: Paso 2. Actualizar el mapa de sobrelapes con los sobrelapes en los que la secuencia nueva sea predecesora de una secuencia existente
 		//2.1 Crear un ArrayList para guardar las secuencias que tengan como prefijo un sufijo de la nueva secuencia
@@ -57,6 +79,7 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	private int getOverlapLength(String sequence1, String sequence2) {
 		// TODO Implementar metodo
+		
 		return 0;
 	}
 
@@ -68,7 +91,8 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public Set<String> getDistinctSequences() {
 		//TODO: Implementar metodo
-		return null;
+		Set <String> keyset = readCounts.keySet();
+		return keyset;
 	}
 
 	/**
@@ -78,7 +102,7 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int getSequenceAbundance(String sequence) {
 		//TODO: Implementar metodo
-		return 0;
+		return readCounts.get(sequence);
 	}
 	
 	/**

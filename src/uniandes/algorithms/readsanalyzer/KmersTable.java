@@ -40,27 +40,6 @@ public class KmersTable implements RawReadProcessor {
 			}
 		}
 		
-		/*
-		for(int x=0; x < sequence.length()-this.kmerSize; x++) {
-			String sub1 = sequence.substring(x, x+this.kmerSize);
-			if(this.kMerSizes.containsKey(sub1)) {
-				continue;
-			}else {
-				int count = 1;
-				//Search how many fixed kMer sequence have
-				for(int y = x+1; y < sequence.length()-this.kmerSize; y++) {
-					String sub2 = sequence.substring(y, y+this.kmerSize);
-					//System.out.println("Palabra 1: " + sub1 + " | " + "Palabra 2: " + sub2);
-					//System.out.println(sub1 == sub2);
-					if( sub1.equals(sub2)) {
-						count++;
-					}
-				}
-				//Add new kMer to dictionary
-				this.kMerSizes.put(sub1, count); 
-			}
-		}
-		*/
 	}
 	
 	/**
@@ -109,32 +88,8 @@ public class KmersTable implements RawReadProcessor {
 		for(int x: kMerSizes.values()) {
 			a_distribution[x] = a_distribution[x] + 1;
 		}
-		System.out.println("El tamño de las distribucines es: " + a_distribution.length);
+		System.out.println("El tamaño de las distribuciones es: " + a_distribution.length);
 		return a_distribution;
-		/*
-		HashMap<String, Integer> kMerSizesCopy = kMerSizes;
-		
-		for(String x: kMerSizes.keySet()) {
-			int abundance = kMerSizes.get(x);
-			if(this.distribution.containsKey(x)) {
-				continue;
-			}else {
-				int count = 1;
-				//Search how many fixed kMer sequence have
-				for(String y: kMerSizes.keySet()) {
-					if(this.distribution.containsKey(x)) {
-						continue;
-					}else {
-						int abundance_2 = kMerSizes.get(x);
-						if( abundance == abundance_2) {
-							count++;
-						}
-					}
-				}
-				//Add new kMer to dictionary
-				this.distribution.put(abundance, count); 
-			}
-		}*/
 		
 	}
 }
