@@ -46,30 +46,30 @@ public class OverlapGraph implements RawReadProcessor {
 			
 			ArrayList<ReadOverlap> overlapes = new ArrayList<>();
 			
-			if(!overlaps.isEmpty()) {
-				ReadOverlap new_overlap;
-				for(String old: readCounts.keySet()) {
-					//sobrelape;
-					int overlap_length = getOverlapLength(old, sequence);
-					if (overlap_length > 0) { 
-						new_overlap = new ReadOverlap(sequence, old, overlap_length);
-						overlapes.add(new_overlap);
-					}
-					
+			//if(!overlaps.isEmpty()) {
+			ReadOverlap new_overlap;
+			for(String old: readCounts.keySet()) {
+				//sobrelape;
+				int overlap_length = getOverlapLength(old, sequence);
+				if (overlap_length > 0) { 
+					new_overlap = new ReadOverlap(sequence, old, overlap_length);
+					overlapes.add(new_overlap);
 				}
-				overlaps.put(sequence, overlapes);
 				
-				for(String old: readCounts.keySet()) {
-					//sobrelape;
-					int overlap_length = getOverlapLength(sequence, old);
-					if (overlap_length > 0) { 
-						new_overlap = new ReadOverlap(old, sequence, overlap_length);
-						overlaps.get(sequence).add(new_overlap);
-					}
-				}
-			}else {
-				overlaps.put(sequence, null);
 			}
+			overlaps.put(sequence, overlapes);
+			
+			for(String old: readCounts.keySet()) {
+				//sobrelape;
+				int overlap_length = getOverlapLength(sequence, old);
+				if (overlap_length > 0) { 
+					new_overlap = new ReadOverlap(old, sequence, overlap_length);
+					overlaps.get(sequence).add(new_overlap);
+				}
+			}
+			//}else {
+			//	overlaps.put(sequence, null);
+			//}
 			
 		}else {
 			this.readCounts.replace(sequence, this.readCounts.get(sequence)+1);
@@ -95,9 +95,10 @@ public class OverlapGraph implements RawReadProcessor {
 	private int getOverlapLength(String sequence1, String sequence2) {
 		// TODO Implementar metodo
 		int max = 0;
-		for(int i = 0; i < sequence1.length() && i < sequence2.length() ;i++) {
+		for(int i = 0; i <= sequence1.length() && i <= sequence2.length() ;i++) {
 			String sub_new = sequence2.substring(sequence2.length()-i, sequence2.length());
-			boolean over = sequence1.substring(0, i).equals(sub_new);
+			String sub_old = sequence1.substring(0, i);
+			boolean over = sub_old.equals(sub_new);
 			
 			if(over && max < sub_new.length()) max = sub_new.length();
 		}
@@ -133,16 +134,49 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int[] calculateAbundancesDistribution() {
 		//TODO: Implementar metodo
-		return null;
+		int max = 0;
+		for(int x: readCounts.values()) {
+			//System.out.println("La abundancia es: " + x);
+			max = (x > max)?x:max;
+		}
+		
+		System.out.println("El valor de Max es: " + max);
+		
+		int[] a_distribution = new int[max+1];
+		a_distribution[0] = 0;
+		for(int i= 0; i < max; i++) {
+			a_distribution[i] = 0;
+		}
+		for(int x: readCounts.values()) {
+			a_distribution[x] = a_distribution[x] + 1;
+		}
+		System.out.println("El tamaño de las distribuciones es: " + a_distribution.length);
+		return a_distribution;
 	}
 	/**
 	 * Calculates the distribution of number of successors
 	 * @return int [] array where the indexes are number of successors and the values are the number of 
 	 * sequences having as many successors as the corresponding array index.
+	 * Sucesor es el que en la secuencia aparece en el sufijo (en el source)
 	 */
 	public int[] calculateOverlapDistribution() {
 		// TODO: Implementar metodo
-		return null;
+		int max = 0;
+		for(ArrayList<ReadOverlap> x : overlaps.values()) {
+			//System.out.println("La abundancia es: " + x);
+			max = (x.size() > max)?x.size():max;
+		}
+		
+		int[] a_distribution = new int[max];
+		a_distribution[0] = 0;
+		for(int i= 0; i < max; i++) {
+			a_distribution[i] = 0;
+		}
+		
+		for(ArrayList<ReadOverlap> x: overlaps.values()) {
+			a_distribution[x.size()] = a_distribution[x.size()] + 1;
+		}
+		return a_distribution;
 	}
 	/**
 	 * Predicts the leftmost sequence of the final assembly for this overlap graph
