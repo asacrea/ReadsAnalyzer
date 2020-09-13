@@ -40,25 +40,40 @@ public class OverlapGraph implements RawReadProcessor {
 		String sequence = read.getSequenceString();
 		//TODO: Paso 1. Agregar la secuencia al mapa de conteos si no existe.
 		//Si ya existe, solo se le suma 1 a su conteo correspondiente y no se deben ejecutar los pasos 2 y 3 
-		int contador=0;
-		int vueltas= readCounts.size();
-		boolean encontrado= false; 
-		while (encontrado==false && contador<vueltas)
-		{
 		
-			if (readCounts.containsKey(sequence))
-			{
-				encontrado=true;
-				this.readCounts
-			}
-			else 
-			{
+		if(!this.readCounts.containsKey(sequence)) {
+			readCounts.put(sequence, 1);
+			
+			ArrayList<ReadOverlap> overlapes = new ArrayList<>();
+			
+			if(!overlaps.isEmpty()) {
+				ReadOverlap new_overlap;
+				for(String old: readCounts.keySet()) {
+					//sobrelape;
+					int overlap_length = getOverlapLength(old, sequence);
+					if (overlap_length > 0) { 
+						new_overlap = new ReadOverlap(sequence, old, overlap_length);
+						overlapes.add(new_overlap);
+					}
+					
+				}
+				overlaps.put(sequence, overlapes);
 				
+				for(String old: readCounts.keySet()) {
+					//sobrelape;
+					int overlap_length = getOverlapLength(sequence, old);
+					if (overlap_length > 0) { 
+						new_overlap = new ReadOverlap(old, sequence, overlap_length);
+						overlaps.get(sequence).add(new_overlap);
+					}
+				}
+			}else {
+				overlaps.put(sequence, null);
 			}
-			contador ++;
+			
+		}else {
+			this.readCounts.replace(sequence, this.readCounts.get(sequence)+1);
 		}
-		
-		
 		
 		//TODO: Paso 2. Actualizar el mapa de sobrelapes con los sobrelapes en los que la secuencia nueva sea predecesora de una secuencia existente
 		//2.1 Crear un ArrayList para guardar las secuencias que tengan como prefijo un sufijo de la nueva secuencia
@@ -79,8 +94,14 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	private int getOverlapLength(String sequence1, String sequence2) {
 		// TODO Implementar metodo
-		
-		return 0;
+		int max = 0;
+		for(int i = 0; i < sequence1.length() && i < sequence2.length() ;i++) {
+			String sub_new = sequence2.substring(sequence2.length()-i, sequence2.length());
+			boolean over = sequence1.substring(0, i).equals(sub_new);
+			
+			if(over && max < sub_new.length()) max = sub_new.length();
+		}
+		return max;
 	}
 
 	
