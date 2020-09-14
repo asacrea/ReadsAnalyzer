@@ -45,26 +45,28 @@ public class OverlapGraph implements RawReadProcessor {
 			readCounts.put(sequence, 1);
 			
 			ArrayList<ReadOverlap> overlapes = new ArrayList<>();
-			
 			//if(!overlaps.isEmpty()) {
 			ReadOverlap new_overlap;
+			// Crea sobrelapes donde la secuencia nueva sea predecesora
 			for(String old: readCounts.keySet()) {
 				//sobrelape;
 				int overlap_length = getOverlapLength(old, sequence);
-				if (overlap_length > 0) { 
+				if (overlap_length > 0 && overlap_length != sequence.length()) { 
 					new_overlap = new ReadOverlap(sequence, old, overlap_length);
 					overlapes.add(new_overlap);
 				}
-				
 			}
-			overlaps.put(sequence, overlapes);
+			if (overlapes != null) {
+				overlaps.put(sequence, overlapes);
+			}
 			
-			for(String old: readCounts.keySet()) {
+			// Crea sobrelapes donde la secuencia nueva sea sucesora
+			for(String old: overlaps.keySet()) {
 				//sobrelape;
 				int overlap_length = getOverlapLength(sequence, old);
-				if (overlap_length > 0) { 
+				if (overlap_length > 0 && overlap_length != sequence.length()) { 
 					new_overlap = new ReadOverlap(old, sequence, overlap_length);
-					overlaps.get(sequence).add(new_overlap);
+					overlaps.get(old).add(new_overlap);
 				}
 			}
 			//}else {
@@ -144,6 +146,7 @@ public class OverlapGraph implements RawReadProcessor {
 		
 		int[] a_distribution = new int[max+1];
 		a_distribution[0] = 0;
+		
 		for(int i= 0; i < max; i++) {
 			a_distribution[i] = 0;
 		}
@@ -167,7 +170,7 @@ public class OverlapGraph implements RawReadProcessor {
 			max = (x.size() > max)?x.size():max;
 		}
 		
-		int[] a_distribution = new int[max];
+		int[] a_distribution = new int[max+1];
 		a_distribution[0] = 0;
 		for(int i= 0; i < max; i++) {
 			a_distribution[i] = 0;
@@ -184,6 +187,17 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public String getSourceSequence () {
 		// TODO Implementar metodo recorriendo las secuencias existentes y buscando una secuencia que no tenga predecesores
+		for(String x: overlaps.keySet()) {
+			int predecesor = 0;
+			for(ReadOverlap y: overlaps.get(x)) {
+				if(y.getSourceSequence() == x) {
+					predecesor++;
+				}
+			}
+			if(predecesor == 0) {
+				return x;
+			}
+		}
 		return null;
 	}
 	
@@ -198,7 +212,28 @@ public class OverlapGraph implements RawReadProcessor {
 		// TODO Implementar metodo. Comenzar por la secuencia fuente que calcula el método anterior
 		// Luego, hacer un ciclo en el que en cada paso se busca la secuencia no visitada que tenga mayor sobrelape con la secuencia actual.
 		// Agregar el sobrelape a la lista de respuesta y la secuencia destino al conjunto de secuencias visitadas. Parar cuando no se encuentre una secuencia nueva
+		//Buscando primera secuencia
+		String firts =  getSourceSequence();
+		ArrayList<ReadOverlap> actual = overlaps.get(firts);
+		//Insertando primera secuencia al LayoutPath
+		layout.add(actual.get(0));
+		//Anadir primer secuencia a visitados
+		visitedSequences.add(actual);
 		
+		while(true) {
+			int max = 0;
+			for(ReadOverlap buscado: actual) {
+				max = (max < buscado.getOverlap())?max:buscado.getOverlap(); 
+			}
+		}
+		
+		for(String x: overlaps.keySet()) {
+			
+			for(ReadOverlap y: overlaps.get(x)) {
+				
+			}
+			
+		}
 		return layout;
 	}
 	/**
@@ -208,7 +243,8 @@ public class OverlapGraph implements RawReadProcessor {
 	public String getAssembly () {
 		ArrayList<ReadOverlap> layout = getLayoutPath();
 		StringBuilder assembly = new StringBuilder();
-		// TODO Recorrer el layout y ensamblar la secuencia agregando al objeto assembly las bases adicionales que aporta la región de cada secuencia destino que está a la derecha del sobrelape 
+		// TODO Recorrer el layout y ensamblar la secuencia agregando al objeto assembly las bases 
+		// adicionales que aporta la región de cada secuencia destino que está a la derecha del sobrelape 
 		
 		return assembly.toString();
 	}
