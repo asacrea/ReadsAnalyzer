@@ -1,5 +1,6 @@
 package uniandes.algorithms.readsanalyzer;
 
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Random;
@@ -21,6 +22,7 @@ public class SimpleReadsSimulator {
 	 * args[1]: Length of the reads to simulate
 	 * args[2]: Number of reads to simulate
 	 * args[3]: Path to the output file
+	 * args[4]: Random error rate
 	 * @throws Exception If the fasta file can not be loaded
 	 */
 	public static void main(String[] args) throws Exception {
@@ -47,8 +49,15 @@ public class SimpleReadsSimulator {
 			// TODO: Generar lecturas aleatorias. Utilizar el objeto random para generar una posicion aleatoria de inicio
 			// en la cadena sequence. Extraer la lectura de tamanho readLength e imprimirla en formato fastq.
 			// Utilizar la cadena fixedQSStr para generar calidades fijas para el formato
+			StringBuilder answer = new StringBuilder();
 			
-			
+			for(int i=0;i<numReads;i++) {
+				int rand_pos = random.nextInt(sequence.length()-readLength);
+				answer.append("@"+rand_pos + "" + sequence.length()+"\n");
+				answer.append(sequence.substring(rand_pos, readLength)+"\n");
+				answer.append("+\n");
+				answer.append(fixedQSStr+"\n");
+			}
 		}
 	}
 }

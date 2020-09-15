@@ -1,8 +1,10 @@
 package uniandes.algorithms.readsanalyzer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,7 +58,7 @@ public class OverlapGraph implements RawReadProcessor {
 					overlapes.add(new_overlap);
 				}
 			}
-			if (overlapes != null) {
+			if (overlapes.isEmpty()) {
 				overlaps.put(sequence, overlapes);
 			}
 			
@@ -98,8 +100,8 @@ public class OverlapGraph implements RawReadProcessor {
 		// TODO Implementar metodo
 		int max = 0;
 		for(int i = 0; i <= sequence1.length() && i <= sequence2.length() ;i++) {
-			String sub_new = sequence2.substring(sequence2.length()-i, sequence2.length());
-			String sub_old = sequence1.substring(0, i);
+			String sub_new = sequence1.substring(sequence1.length()-i, sequence1.length());
+			String sub_old = sequence2.substring(0, i);
 			boolean over = sub_old.equals(sub_new);
 			
 			if(over && max < sub_new.length()) max = sub_new.length();
@@ -211,31 +213,46 @@ public class OverlapGraph implements RawReadProcessor {
 		HashSet<String> visitedSequences = new HashSet<>(); 
 		// TODO Implementar metodo. Comenzar por la secuencia fuente que calcula el método anterior
 		// Luego, hacer un ciclo en el que en cada paso se busca la secuencia no visitada que tenga mayor sobrelape con la secuencia actual.
-		// Agregar el sobrelape a la lista de respuesta y la secuencia destino al conjunto de secuencias visitadas. Parar cuando no se encuentre una secuencia nueva
+		// Agregar el sobrelape a la lista de respuesta y la secuencia destino al conjunto de secuencias visitadas.
+		// Parar cuando no se encuentre una secuencia nueva
 		//Buscando primera secuencia
 		String firts =  getSourceSequence();
-		ArrayList<ReadOverlap> actual = overlaps.get(firts);
-		//Insertando primera secuencia al LayoutPath
-		layout.add(actual.get(0));
 		//Anadir primer secuencia a visitados
-		visitedSequences.add(actual);
+		visitedSequences.add(firts);
 		
-		while(true) {
-			int max = 0;
-			for(ReadOverlap buscado: actual) {
-				max = (max < buscado.getOverlap())?max:buscado.getOverlap(); 
+		Iterator it = overlaps.entrySet().iterator();
+		Set<String> values = overlaps.keySet();
+		while(it.hasNext()) {
+			Map.Entry actual = (Map.Entry)it.next();
+			if(visitedSequences.contains((String)actual.getKey())){
+				continue;
+			}else {
+				ArrayList<ReadOverlap> sequence = overlaps.get(actual.getKey());
+				ReadOverlap buscado = getBetterSequence(sequence);
+				//Agregar sobrelape
+				layout.add(buscado);
+				//Agregar secuencia a la lista de visitados
+				visitedSequences.add((String)actual.getKey());
+				//Reiniciar recorrido
+				it = overlaps.entrySet().iterator();
+				values = overlaps.keySet();
 			}
-		}
-		
-		for(String x: overlaps.keySet()) {
-			
-			for(ReadOverlap y: overlaps.get(x)) {
-				
-			}
-			
 		}
 		return layout;
 	}
+	
+	public ReadOverlap getBetterSequence(ArrayList<ReadOverlap> lista) {
+		int max = 0;
+		ReadOverlap buscado = null; 
+		for(ReadOverlap overlap: lista) {
+			if(max < overlap.getOverlap() ) {
+				max = overlap.getOverlap();
+				buscado = overlap;
+			}
+		}
+		return buscado;
+	}
+	
 	/**
 	 * Predicts an assembly consistent with this overlap graph
 	 * @return String assembly explaining the reads and the overlaps in this graph
@@ -244,10 +261,17 @@ public class OverlapGraph implements RawReadProcessor {
 		ArrayList<ReadOverlap> layout = getLayoutPath();
 		StringBuilder assembly = new StringBuilder();
 		// TODO Recorrer el layout y ensamblar la secuencia agregando al objeto assembly las bases 
-		// adicionales que aporta la región de cada secuencia destino que está a la derecha del sobrelape 
-		
+		// adicionales que aporta la región de cada secuencia destino que está a la derecha del sobrelape
+		assembly.append(getSourceSequence());
+		for(ReadOverlap element: layout) {
+			int over = element.getOverlap();
+			String dest = element.getSourceSequence();
+			String aditional = "";
+			//if(dest.length() < over) {
+			aditional = dest.substring(over, dest.length());
+			//}
+			assembly.append(aditional);
+		}
 		return assembly.toString();
 	}
-
-	
 }
