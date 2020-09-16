@@ -52,21 +52,21 @@ public class OverlapGraph implements RawReadProcessor {
 			// Crea sobrelapes donde la secuencia nueva sea predecesora
 			for(String old: readCounts.keySet()) {
 				//sobrelape;
-				int overlap_length = getOverlapLength(old, sequence);
-				if (overlap_length > 0 && overlap_length != sequence.length()) { 
+				int overlap_length = getOverlapLength(sequence,old);
+				//if (overlap_length > 0 && overlap_length != sequence.length())
+				if (overlap_length > 0 && minOverlap <= overlap_length && overlap_length != sequence.length()) {
 					new_overlap = new ReadOverlap(sequence, old, overlap_length);
 					overlapes.add(new_overlap);
 				}
 			}
-			if (overlapes.isEmpty()) {
-				overlaps.put(sequence, overlapes);
-			}
 			
+			overlaps.put(sequence, overlapes);
+			//System.out.println(overlaps.get(sequence).isEmpty());
 			// Crea sobrelapes donde la secuencia nueva sea sucesora
 			for(String old: overlaps.keySet()) {
 				//sobrelape;
-				int overlap_length = getOverlapLength(sequence, old);
-				if (overlap_length > 0 && overlap_length != sequence.length()) { 
+				int overlap_length = getOverlapLength(old, sequence);
+				if (overlap_length > 0  && minOverlap <= overlap_length && overlap_length != sequence.length()) {
 					new_overlap = new ReadOverlap(old, sequence, overlap_length);
 					overlaps.get(old).add(new_overlap);
 				}
@@ -189,15 +189,19 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public String getSourceSequence () {
 		// TODO Implementar metodo recorriendo las secuencias existentes y buscando una secuencia que no tenga predecesores
-		for(String x: overlaps.keySet()) {
-			int predecesor = 0;
-			for(ReadOverlap y: overlaps.get(x)) {
-				if(y.getSourceSequence() == x) {
-					predecesor++;
+		for(String over: overlaps.keySet()) {
+			int cont = 0;
+			for(String over_2: overlaps.keySet()) {
+				if(over != over_2) {
+					for(ReadOverlap readover: overlaps.get(over_2)) {
+						if(over.equals(readover.getDestSequence())) {
+							cont++;
+						}
+					}
 				}
 			}
-			if(predecesor == 0) {
-				return x;
+			if(cont == 0) {
+				return over;
 			}
 		}
 		return null;
@@ -216,27 +220,27 @@ public class OverlapGraph implements RawReadProcessor {
 		// Agregar el sobrelape a la lista de respuesta y la secuencia destino al conjunto de secuencias visitadas.
 		// Parar cuando no se encuentre una secuencia nueva
 		//Buscando primera secuencia
-		String firts =  getSourceSequence();
-		//Anadir primer secuencia a visitados
-		visitedSequences.add(firts);
-		
-		Iterator it = overlaps.entrySet().iterator();
-		Set<String> values = overlaps.keySet();
-		while(it.hasNext()) {
-			Map.Entry actual = (Map.Entry)it.next();
-			if(visitedSequences.contains((String)actual.getKey())){
+		String first =  getSourceSequence();
+
+		String actual = first;
+		//layout.add(getBetterSequence(overlaps.get(first)));
+		//visitedSequences.add(actual);
+		//System.out.print("----"+actual);
+		while(!overlaps.get(actual).isEmpty()){
+			//System.out.println(!overlaps.get(actual).isEmpty());
+			//System.out.println(!visitedSequences.contains(actual));
+			if(!visitedSequences.contains(actual)) {
+				visitedSequences.add(actual);
+				ReadOverlap better = getBetterSequence(overlaps.get(actual));
+				layout.add(better);
+				actual = better.getDestSequence();
+			}else{
+				ReadOverlap better = getBetterSequence(overlaps.get(actual));
+				actual = better.getDestSequence();
+				//System.out.print(actual + " ");
 				continue;
-			}else {
-				ArrayList<ReadOverlap> sequence = overlaps.get(actual.getKey());
-				ReadOverlap buscado = getBetterSequence(sequence);
-				//Agregar sobrelape
-				layout.add(buscado);
-				//Agregar secuencia a la lista de visitados
-				visitedSequences.add((String)actual.getKey());
-				//Reiniciar recorrido
-				it = overlaps.entrySet().iterator();
-				values = overlaps.keySet();
 			}
+			//System.out.print(actual + " ");
 		}
 		return layout;
 	}
@@ -262,15 +266,19 @@ public class OverlapGraph implements RawReadProcessor {
 		StringBuilder assembly = new StringBuilder();
 		// TODO Recorrer el layout y ensamblar la secuencia agregando al objeto assembly las bases 
 		// adicionales que aporta la región de cada secuencia destino que está a la derecha del sobrelape
+		System.out.print(getSourceSequence());
 		assembly.append(getSourceSequence());
+		
 		for(ReadOverlap element: layout) {
+			//System.out.println("");
 			int over = element.getOverlap();
-			String dest = element.getSourceSequence();
+			String dest = element.getDestSequence();
 			String aditional = "";
 			//if(dest.length() < over) {
 			aditional = dest.substring(over, dest.length());
 			//}
 			assembly.append(aditional);
+			System.out.print(aditional);
 		}
 		return assembly.toString();
 	}
